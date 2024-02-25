@@ -1,4 +1,3 @@
-// NotificationService.ts
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
@@ -48,6 +47,13 @@ class NotificationService {
             });
         }
     }
+
+    static async scheduleNotification(body: {content: {}, trigger: Date}) {
+        await Notifications.scheduleNotificationAsync({
+          content: body.content,
+          trigger: body.trigger
+        });
+      }
 
     static async sendPushNotification(): Promise<void> {
         const message = {

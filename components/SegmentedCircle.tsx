@@ -7,11 +7,10 @@ export default function SegmentedCircle({
     radius = 32,
     strokeWidth = 5,
     backgroundColor = '#212121',
-    rounded = true,
-    markRadius = 3 // Radius der Markierungen
+    rounded = true
 }) {
     const circleCenter = radius + strokeWidth / 2;
-    const rotation = -45;
+    const rotation = - 45;
 
     // Funktion zum Erstellen von Pfaden für ein fehlendes Segment
     const createMissingSegmentPath = (startAngle: number, endAngle: number) => {
