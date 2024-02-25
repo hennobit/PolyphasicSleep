@@ -5,7 +5,6 @@ import SegmentedCircle from './SegmentedCircle';
 
 export default function RotatingCircle({ segments }) {
     const [rotation] = useState(new Animated.Value(0));
-    const [rotationValue, setRotationValue] = useState(0);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -14,7 +13,6 @@ export default function RotatingCircle({ segments }) {
             const minutes = now.getMinutes();
             const newRotationValue = -(hours * 15 + minutes * 0.25);
 
-            setRotationValue(newRotationValue);
             rotateCircle(newRotationValue);
         }, 1000);
 
@@ -41,11 +39,8 @@ export default function RotatingCircle({ segments }) {
                     ]
                 }}
             >
-                <SegmentedCircle rounded={false} radius={160} strokeWidth={10} segments={segments}></SegmentedCircle>
+                <SegmentedCircle rounded={false} radius={160} strokeWidth={10} segments={segments} backgroundColor='#212121'></SegmentedCircle>
             </Animated.View>
-            <Text style={{ color: 'white', position: 'absolute', top: -50 }}>
-                Rotation: {rotationValue.toFixed(2)}°
-            </Text>
         </View>
     );
 }

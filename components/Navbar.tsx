@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import NavbarItem from './NavbarItem';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 
 const Navbar = () => {
     return (
@@ -14,9 +15,9 @@ const Navbar = () => {
                 textColor='#7559db'
             />
             <NavbarItem
-                href='/settings'
-                icon={<Ionicons name='settings-outline' size={24} color='#e1e1e1' />}
-                text='Settings'
+                href='/user'
+                icon={<FontAwesome name="user-o" size={24} color="#e1e1e1" />}
+                text='Me'
             ></NavbarItem>
         </View>
     );

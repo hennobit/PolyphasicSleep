@@ -71,6 +71,10 @@ export default function Page() {
                 { startAngle: 345, endAngle: 60 },
                 { startAngle: 195, endAngle: 217.5 }
             ]
+        },
+        {
+            name: 'Custom',
+            segments: []
         }
     ];
 
@@ -80,7 +84,7 @@ export default function Page() {
             <FlatList
                 data={sleepModelButtons}
                 renderItem={({ item }) => <SleepModelButton name={item.name} segments={item.segments} />}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item) => item.name}
                 numColumns={3}
                 contentContainerStyle={styles.list}
             />

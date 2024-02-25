@@ -2,15 +2,30 @@ import React from 'react';
 import { View } from 'react-native';
 import Svg, { Circle, G, Path } from 'react-native-svg';
 
+interface Segment {
+    startAngle: number;
+    endAngle: number;
+    color?: string;
+}
+
+interface SegmentedCircleProps {
+    segments: Segment[];
+    radius?: number;
+    strokeWidth?: number;
+    backgroundColor?: string;
+    rounded?: boolean;
+}
+
 export default function SegmentedCircle({
     segments,
     radius = 32,
     strokeWidth = 5,
-    backgroundColor = '#212121',
+    backgroundColor = 'transparent',
     rounded = true
-}) {
+}: SegmentedCircleProps) {
+    
     const circleCenter = radius + strokeWidth / 2;
-    const rotation = - 45;
+    const rotation = -45;
 
     // Funktion zum Erstellen von Pfaden für ein fehlendes Segment
     const createMissingSegmentPath = (startAngle: number, endAngle: number) => {

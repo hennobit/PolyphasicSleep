@@ -2,10 +2,11 @@ import { View } from 'react-native';
 import SegmentedCircle from './SegmentedCircle';
 import CustomText from './CustomText';
 import { Link } from 'expo-router';
+import { AntDesign } from '@expo/vector-icons';
 
 export default function SleepModelButton({ name, segments }) {
     return (
-        <Link href={`/schedules/${name}`} style={{margin: 8}}>
+        <Link href={`/schedules/${name.toLowerCase()}`} style={{marginHorizontal: 8}}>
             <View
                 style={{
                     width: 111,
@@ -28,7 +29,11 @@ export default function SleepModelButton({ name, segments }) {
                         borderRadius: 8
                     }}
                 />
-                <SegmentedCircle segments={segments}></SegmentedCircle>
+                {name === 'Custom' ? (
+                    <AntDesign name='plus' size={69} color='#7559db' />
+                ) : (
+                    <SegmentedCircle segments={segments}></SegmentedCircle>
+                )}
                 <CustomText
                     overlayOpacity={60}
                     style={{

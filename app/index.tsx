@@ -21,6 +21,31 @@ export default function Page() {
         return [stunden, minuten];
     }
 
+    function gradZuUhrzeitString(grad: number): string {
+        const stunden = Math.floor(grad / 15);
+        const minuten = Math.round((grad % 15) / 0.25);
+    
+        const stundenStr = stunden.toString().padStart(2, '0');
+        const minutenStr = minuten.toString().padStart(2, '0');
+    
+        return `${stundenStr}:${minutenStr}`;
+    }
+
+    function getNextSegment() {
+        const currentDate = new Date()
+        const aktuelleZeitGrad = (currentDate.getHours() * 60 + currentDate.getMinutes()) / 2;
+
+        const differenzen = segments.map((segment) => {
+            const startWinkel = segment.startAngle <= segment.endAngle ? segment.startAngle : segment.startAngle - 360;
+            return Math.abs(aktuelleZeitGrad - startWinkel);
+        });
+
+        const indexNächstesSegment = differenzen.indexOf(Math.min(...differenzen));
+
+        console.log(segments[indexNächstesSegment].startAngle)
+        return gradZuUhrzeitString(segments[indexNächstesSegment].startAngle);
+    }
+
     function calculateNotificationTime(startAngle: number): Date {
         const currentTime = new Date();
         const [hours, minutes] = gradZuUhrzeit(startAngle - 30 / 2); // 30 Minuten abziehen
@@ -44,24 +69,23 @@ export default function Page() {
         const trigger = new Date(time);
         NotificationService.scheduleNotification({
             content: {
-                title: "Erinnerung",
-                body: "Dein Segment beginnt bald.",
+                title: 'Erinnerung',
+                body: 'Dein Segment beginnt bald.'
             },
-            trigger,
+            trigger
         });
     }
 
     // get infos out of database in the future
     const segments = [
-        { startAngle: 0, endAngle: 61 },
-        { startAngle: 174.75, endAngle: 180 },
+        { color: 'red', endAngle: 90, startAngle: 37.5 },
     ];
 
     return (
         <View style={{ flex: 1, justifyContent: 'space-around' }}>
             <Text style={styles.headerText}>Today</Text>
             <CustomText overlayOpacity={60} style={{ marginLeft: 10, color: 'white' }}>
-                Everyman 2
+                Custom Schedule #1
             </CustomText>
             <RotatingCircle segments={segments} />
             <View style={{ justifyContent: 'center', alignItems: 'center', bottom: 160 }}>
@@ -69,7 +93,7 @@ export default function Page() {
                     Next Phase at
                 </CustomText>
                 <CustomText overlayOpacity={87} style={{ fontSize: 32, color: 'white' }}>
-                    18:20
+                    {getNextSegment()}
                 </CustomText>
             </View>
             <View

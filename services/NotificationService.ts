@@ -7,7 +7,7 @@ let expoPushToken = '';
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
         shouldShowAlert: true,
-        shouldPlaySound: false,
+        shouldPlaySound: true,
         shouldSetBadge: false
     })
 });
@@ -15,7 +15,6 @@ Notifications.setNotificationHandler({
 class NotificationService {
     static async registerForPushNotificationsAsync(): Promise<string | undefined> {
         if (!Device.isDevice) {
-            alert('Must use physical device for Push Notifications');
             return;
         }
 
