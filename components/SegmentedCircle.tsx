@@ -7,13 +7,14 @@ export default function SegmentedCircle({
     radius = 32,
     strokeWidth = 5,
     backgroundColor = '#212121',
-    rounded = true
+    rounded = true,
+    markRadius = 3 // Radius der Markierungen
 }) {
     const circleCenter = radius + strokeWidth / 2;
     const rotation = -45;
 
     // Funktion zum Erstellen von Pfaden für ein fehlendes Segment
-    const createMissingSegmentPath = (startAngle, endAngle) => {
+    const createMissingSegmentPath = (startAngle: number, endAngle: number) => {
         const startRadians = ((startAngle + rotation) * Math.PI) / 180;
         const endRadians = ((endAngle + rotation) * Math.PI) / 180;
         const startX = circleCenter + radius * Math.cos(startRadians);
@@ -28,23 +29,29 @@ export default function SegmentedCircle({
     let allPaths = [];
 
     // Funktion zum Erstellen eines Hintergrundsegments für einen bestimmten Bereich
-    function createBackgroundSegment(startAngle, endAngle, color) {
+    function createBackgroundSegment(startAngle: number, endAngle: number, color: string) {
         const pathData = createMissingSegmentPath(startAngle, endAngle);
         allPaths.push({ pathData, color });
     }
 
     // Durchlaufen aller Winkel im Kreis
     for (let angle = 0; angle < 360; angle++) {
-        // Überprüfen, ob ein vorhandenes Segment den aktuellen Winkel abdeckt
-        const coveredSegment = segments.find((segment) => {
-            return angle >= segment.startAngle && angle <= segment.endAngle;
+        const coveredSegment = segments.find((segment: { startAngle: number; endAngle: number; color: string }) => {
+            const normalizedAngle = angle % 360;
+            const normalizedStartAngle = segment.startAngle % 360;
+            const normalizedEndAngle = segment.endAngle % 360;
+            return (
+                (normalizedStartAngle <= normalizedEndAngle &&
+                    normalizedAngle >= normalizedStartAngle &&
+                    normalizedAngle <= normalizedEndAngle) ||
+                (normalizedStartAngle > normalizedEndAngle &&
+                    (normalizedAngle >= normalizedStartAngle || normalizedAngle <= normalizedEndAngle))
+            );
         });
 
-        // Falls ein vorhandenes Segment den aktuellen Winkel abdeckt, die Farbe des Segments verwenden
         if (coveredSegment) {
-            createBackgroundSegment(angle, angle + 1, coveredSegment.color);
+            createBackgroundSegment(angle, angle + 1, coveredSegment.color ?? '#7559db');
         } else {
-            // Andernfalls die Hintergrundfarbe verwenden
             createBackgroundSegment(angle, angle + 1, backgroundColor);
         }
     }

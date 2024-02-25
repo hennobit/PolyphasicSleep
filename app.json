@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "PolyPhasicSleep",
-    "slug": "PolyPhasicSleep",
+    "slug": "polyphasicsleep",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -32,6 +32,15 @@
     "scheme": "your-app-scheme",
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "37eabf2f-76d9-4c09-94c6-94cdd1c10ddc"
+      }
+    },
+    "owner": "hennobit"
   }
 }

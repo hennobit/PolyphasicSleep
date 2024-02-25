@@ -2,11 +2,22 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import NavbarItem from './NavbarItem';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 const Navbar = () => {
     return (
         <View style={styles.container}>
-            <NavbarItem href='/' icon={<MaterialCommunityIcons name="calendar-check-outline" size={24} color="black" />} text='Journal'/>
+            <NavbarItem
+                href='/'
+                icon={<MaterialCommunityIcons name='calendar-check-outline' size={24} color='#7559db' />}
+                text='Home'
+                textColor='#7559db'
+            />
+            <NavbarItem
+                href='/settings'
+                icon={<Ionicons name='settings-outline' size={24} color='#e1e1e1' />}
+                text='Settings'
+            ></NavbarItem>
         </View>
     );
 };
@@ -19,7 +30,7 @@ const styles = StyleSheet.create({
         width: '109%',
         flexDirection: 'row',
         justifyContent: 'space-around',
-        backgroundColor: '#fff',
+        backgroundColor: '#212121',
         paddingVertical: 9,
         borderTopLeftRadius: 8,
         borderTopRightRadius: 8

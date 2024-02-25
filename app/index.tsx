@@ -1,66 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Animated, Easing } from 'react-native';
-import SegmentedCircle from '../components/SegmentedCircle';
+// Page.js
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import CustomText from '../components/CustomText'; // Pfad anpassen
+import CustomButton from '../components/CustomButton'; // Pfad anpassen
+import NotificationService from '../services/NotificationService'; // Pfad anpassen
+import RotatingCircle from '../components/RotatingCircle'; // Pfad anpassen und sicherstellen, dass der Pfad korrekt ist
 
 export default function Page() {
-    const [rotation] = useState(new Animated.Value(0));
-
     useEffect(() => {
-        const interval = setInterval(() => {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-            const totalMinutes = hours * 60 + minutes;
-            const rotationValue = (totalMinutes / (12 * 60)) * 360; // 12 Stunden * 60 Minuten
-            rotateCircle(rotationValue);
-            console.log(rotationValue);
-        }, 1000); // Aktualisiere alle Sekunde
-
-        return () => clearInterval(interval);
+        NotificationService.registerForPushNotificationsAsync().then(() => {
+            NotificationService.sendPushNotification();
+        });
     }, []);
 
-    const rotateCircle = (toValue: number) => {
-        Animated.timing(rotation, {
-            toValue,
-            duration: 1000,
-            easing: Easing.linear,
-            useNativeDriver: true
-        }).start();
-    };
-
     return (
-        <View style={{ flex: 1 }}>
-            <Text style={styles.headerText}>Heute</Text>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 32 }}>
-                <View
-                    style={{
-                        position: 'absolute',
-                        top: 158,
-                        left: '50%',
-                        width: 2,
-                        height: 40,
-                        backgroundColor: '#fff',
-                        zIndex: 1
-                    }}
-                ></View>
-                <Animated.View
-                    style={{
-                        transform: [
-                            { rotate: rotation.interpolate({ inputRange: [0, 360], outputRange: ['0deg', '360deg'] }) }
-                        ]
-                    }}
-                >
-                    <SegmentedCircle
-                        rounded={false}
-                        radius={160}
-                        strokeWidth={10}
-                        segments={[
-                            { startAngle: 1, endAngle: 90, color: 'red' },
-                            { startAngle: 180, endAngle: 270, color: 'green' },
-                        ]}
-                    ></SegmentedCircle>
-                </Animated.View>
+        <View style={{ flex: 1, justifyContent: 'space-around' }}>
+            <Text style={styles.headerText}>Today</Text>
+            <CustomText overlayOpacity={60} style={{ marginLeft: 10, color: 'white' }}>
+                Everyman 2
+            </CustomText>
+            <RotatingCircle />
+            <View style={{ justifyContent: 'center', alignItems: 'center', bottom: 160 }}>
+                <CustomText overlayOpacity={87} style={{ fontSize: 20, color: 'white' }}>
+                    Next Phase at
+                </CustomText>
+                <CustomText overlayOpacity={87} style={{ fontSize: 32, color: 'white' }}>
+                    18:20
+                </CustomText>
             </View>
+            <View
+                style={{
+                    position: 'absolute',
+                    top: '23.9%',
+                    left: '50%',
+                    width: 2,
+                    height: 40,
+                    backgroundColor: '#fff',
+                    zIndex: 1
+                }}
+            ></View>
         </View>
     );
 }
@@ -70,6 +48,6 @@ const styles = StyleSheet.create({
         fontSize: 32,
         fontWeight: 'bold',
         color: 'white',
-        margin: 10
+        marginLeft: 10
     }
 });
