@@ -23,32 +23,31 @@ export default function Page() {
 
     function gradZuUhrzeitString(grad: number): string {
         const stunden = Math.floor(grad / 15);
-        const minuten = Math.round((grad % 15) / 0.25);
-    
+        const minuten = Math.round((grad % 15) * 4);
+
         const stundenStr = stunden.toString().padStart(2, '0');
         const minutenStr = minuten.toString().padStart(2, '0');
-    
+
         return `${stundenStr}:${minutenStr}`;
     }
 
-    function getNextSegment() {
-        const currentDate = new Date()
-        const aktuelleZeitGrad = (currentDate.getHours() * 60 + currentDate.getMinutes()) / 2;
-
-        const differenzen = segments.map((segment) => {
-            const startWinkel = segment.startAngle <= segment.endAngle ? segment.startAngle : segment.startAngle - 360;
-            return Math.abs(aktuelleZeitGrad - startWinkel);
+    function getNextSegment(): string {
+        const currentDate = new Date();
+        const currentTimeDegree = (currentDate.getHours() * 15 + currentDate.getMinutes() * 0.25);
+        
+        const differences = segments.map((segment) => {
+            return segment.startAngle - currentTimeDegree;
         });
+        const nonNegativeDifferences = differences.filter((diff) => diff >= 0);
+        const minNonNegativeDifference = Math.min(...nonNegativeDifferences);
+        const indexNextSegment = differences.indexOf(minNonNegativeDifference);
 
-        const indexNächstesSegment = differenzen.indexOf(Math.min(...differenzen));
-
-        console.log(segments[indexNächstesSegment].startAngle)
-        return gradZuUhrzeitString(segments[indexNächstesSegment].startAngle);
+        return gradZuUhrzeitString(segments[indexNextSegment].startAngle);
     }
 
     function calculateNotificationTime(startAngle: number): Date {
         const currentTime = new Date();
-        const [hours, minutes] = gradZuUhrzeit(startAngle - 30 / 2); // 30 Minuten abziehen
+        const [hours, minutes] = gradZuUhrzeit(startAngle - 30 / 2); // notification 30 minutes before next phase
         const notificationDate = new Date(
             currentTime.getFullYear(),
             currentTime.getMonth(),
@@ -57,7 +56,7 @@ export default function Page() {
             minutes
         );
 
-        // Falls die berechnete Zeit in der Vergangenheit liegt, plane für den nächsten Tag
+        // if the time is in the past, plan for the next day
         if (notificationDate < currentTime) {
             notificationDate.setDate(notificationDate.getDate() + 1);
         }
@@ -78,14 +77,16 @@ export default function Page() {
 
     // get infos out of database in the future
     const segments = [
-        { color: 'red', endAngle: 90, startAngle: 37.5 },
+        { startAngle: 120, endAngle: 125 },
+        { startAngle: 345, endAngle: 52.5 },
+        { startAngle: 217.5, endAngle: 222.5 }
     ];
 
     return (
         <View style={{ flex: 1, justifyContent: 'space-around' }}>
             <Text style={styles.headerText}>Today</Text>
             <CustomText overlayOpacity={60} style={{ marginLeft: 10, color: 'white' }}>
-                Custom Schedule #1
+                Everyman 2
             </CustomText>
             <RotatingCircle segments={segments} />
             <View style={{ justifyContent: 'center', alignItems: 'center', bottom: 160 }}>
