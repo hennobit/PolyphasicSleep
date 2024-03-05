@@ -1,15 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export interface ScheduleSegment {
-    startAngle: number;
-    endAngle: number;
-    color?: string;
-}
-
-export interface SleepModelButton {
-    name: string;
-    segments: ScheduleSegment[];
-}
+import { SleepModelButton } from '../interfaces/SleepModelButton';
+import { ScheduleSegment } from '../interfaces/ScheduleSegment';
 
 const sleepModelButtons: SleepModelButton[] = [
     {
@@ -95,10 +86,34 @@ const saveSleepModelButtons = async () => {
     }
 };
 
+const loadCustomSchedule = async () => {
+    try {
+        const customScheduleString = await AsyncStorage.getItem('CUSTOM_SCHEDULE');
+        return customScheduleString ? JSON.parse(customScheduleString) : null;
+    } catch (error) {
+        console.error('Error loading custom schedule:', error);
+        throw error;
+    }
+};
+
 const loadSleepModelButtons = async () => {
     try {
         const buttonsString = await AsyncStorage.getItem('sleepModelButtons');
-        return buttonsString ? JSON.parse(buttonsString) : null;
+        const sleepModelButtons = buttonsString ? JSON.parse(buttonsString) : null;
+        if (sleepModelButtons) {
+            const customSchedule = await loadCustomSchedule();
+            if (customSchedule) {
+                console.log(customSchedule);
+                const customSegments = customSchedule.segments.map((segment: {startAngle: string, endAngle: string, color: string}) => ({
+                    ...segment,
+                    startAngle: parseInt(segment.startAngle),
+                    endAngle: parseInt(segment.endAngle)
+                }));
+                sleepModelButtons.find((button: SleepModelButton) => button.name === 'Custom').segments =
+                    customSegments;
+            }
+        }
+        return sleepModelButtons;
     } catch (error) {
         console.error('Error loading Sleep-Model-Buttons:', error);
         return null;

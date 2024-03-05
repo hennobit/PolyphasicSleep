@@ -29,7 +29,7 @@ export default function SleepModelButton({ name, segments }) {
                         borderRadius: 8
                     }}
                 />
-                {name === 'Custom' ? (
+                {name === 'Custom' && segments.length === 0 ? (
                     <AntDesign name='plus' size={69} color='#7559db' />
                 ) : (
                     <SegmentedCircle segments={segments}></SegmentedCircle>

@@ -1,39 +1,23 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, TextInput, StyleSheet, Button, ScrollView, Modal, Alert } from 'react-native';
+import { View, TouchableOpacity, TextInput, StyleSheet, ScrollView, Modal, Alert } from 'react-native';
 import WheelColorPicker from 'react-native-wheel-color-picker';
 import CustomButton from '../../components/CustomButton';
+import { ScheduleSegment } from '../../interfaces/ScheduleSegment';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Page() {
-    const [segments, setSegments] = useState([
-        {
-            name: '',
-            startAngle: '',
-            endAngle: '',
-            color: 'red' // Default color
-        }
-    ]);
-
+    const [segments, setSegments] = useState([] as ScheduleSegment[]);
     const [colorPickerIndex, setColorPickerIndex] = useState(null);
     const [colorPickerVisible, setColorPickerVisible] = useState(false);
     const [selectedColor, setSelectedColor] = useState('red');
 
     const addSegment = () => {
-        const newSegments = segments.map((segment) => {
-            const startAngle = parseInt(segment.startAngle);
-            const endAngle = parseInt(segment.endAngle);
+        const newSegments = segments.map((segment) => ({
+            ...segment
+        }));
 
-            if (!isNaN(startAngle) && !isNaN(endAngle) && startAngle >= 0 && endAngle <= 360 && startAngle < endAngle) {
-                return { ...segment, valid: true };
-            } else {
-                alert('Bitte geben Sie gültige Winkel für das Segment ein (0 bis 360).');
-                return { ...segment, valid: false };
-            }
-        });
-
-        if (newSegments.every((segment) => segment.valid)) {
-            const newSegment = { name: '', startAngle: '', endAngle: '', color: 'red', valid: true };
-            setSegments([...newSegments, newSegment]);
-        }
+        setSegments([...newSegments, { startAngle: 0, endAngle: 0, color: 'red' }]);
     };
 
     const updateSegment = (index, field, value) => {
@@ -63,7 +47,7 @@ export default function Page() {
         setColorPickerVisible(false);
     };
 
-    const showDeleteConfirmation = (index: number) => {
+    const showDeleteConfirmation = (index) => {
         Alert.alert(
             'Delete',
             'Delete segment?',
@@ -82,29 +66,25 @@ export default function Page() {
         );
     };
 
-    function saveSchedule() {
-        const scheduleSegments = [];
-    
-        segments.forEach(segment => {
-            const startAngle = parseInt(segment.startAngle);
-            const endAngle = parseInt(segment.endAngle);
-    
-            if (!isNaN(startAngle) && !isNaN(endAngle) && startAngle >= 0 && endAngle <= 360 && startAngle < endAngle) {
-                scheduleSegments.push({
-                    startAngle,
-                    endAngle,
-                    color: segment.color
-                });
-            }
-        });
-    
-        const scheduleObject = {
-            name: 'Custom Schedule #1',
-            segments: scheduleSegments
-        };
-    
-        console.log(scheduleObject);
-    }
+    const saveSchedule = async () => {
+        try {
+            await saveCustomSchedule(segments);
+            router.push('/schedules');
+        } catch (error) {
+            console.error('Error saving schedule:', error);
+        }
+    };
+
+    const saveCustomSchedule = async (segments) => {
+        try {
+            const customSchedule = { segments };
+            await AsyncStorage.setItem('CUSTOM_SCHEDULE', JSON.stringify(customSchedule));
+            console.log('Custom schedule successfully saved.');
+        } catch (error) {
+            console.error('Error saving custom schedule:', error);
+            throw error;
+        }
+    };
 
     return (
         <View style={{ flex: 1 }}>
@@ -116,7 +96,6 @@ export default function Page() {
                                 style={styles.input}
                                 placeholder='Name'
                                 placeholderTextColor={'#a9a9a9'}
-                                value={segment.name}
                                 onChangeText={(text) => updateSegment(index, 'name', text)}
                             />
                             <TextInput
@@ -124,14 +103,14 @@ export default function Page() {
                                 placeholder='00:00'
                                 placeholderTextColor={'#a9a9a9'}
                                 keyboardType='numeric'
-                                value={segment.startAngle}
+                                value={segment.startAngle + ''}
                                 onChangeText={(text) => updateSegment(index, 'startAngle', text)}
                             />
                             <TextInput
                                 style={styles.input}
                                 placeholder='23:59'
                                 keyboardType='numeric'
-                                value={segment.endAngle}
+                                value={segment.endAngle + ''}
                                 placeholderTextColor={'#a9a9a9'}
                                 onChangeText={(text) => updateSegment(index, 'endAngle', text)}
                             />
@@ -168,7 +147,7 @@ export default function Page() {
                     </View>
                 </Modal>
             </ScrollView>
-            <CustomButton title='Speichern' onPress={() => saveSchedule()} style={{ bottom: 80, backgroundColor: '#7559db' }} />
+            <CustomButton title='Save' onPress={saveSchedule} style={{ bottom: 80, backgroundColor: '#7559db' }} />
         </View>
     );
 }
