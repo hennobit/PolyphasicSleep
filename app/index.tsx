@@ -3,11 +3,9 @@ import { View, Text, StyleSheet } from 'react-native';
 import CustomText from '../components/CustomText';
 import NotificationService from '../services/NotificationService';
 import RotatingCircle from '../components/RotatingCircle';
-import DatabaseService from '../services/DatabaseService';
 
 export default function Page() {
     useEffect(() => {
-        const db = new DatabaseService("polyphasicsleep.db")
         NotificationService.registerForPushNotificationsAsync().then(() => {
             segments.forEach((segment) => {
                 const notificationTime = calculateNotificationTime(segment.startAngle);
