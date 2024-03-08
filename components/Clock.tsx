@@ -21,7 +21,7 @@ export default function RotatingCircle({ segments }) {
 
     const rotateCircle = (toValue: number) => {
         const adjustedRotationValue = toValue;
-    
+
         Animated.timing(rotation, {
             toValue: adjustedRotationValue,
             duration: 1000,
@@ -32,6 +32,17 @@ export default function RotatingCircle({ segments }) {
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: 32 }}>
+            <View
+                style={{
+                    position: 'absolute',
+                    top: '22.5%',
+                    left: '50%',
+                    width: 2,
+                    height: 40,
+                    backgroundColor: '#fff',
+                    zIndex: 1
+                }}
+            ></View>
             <Animated.View
                 style={{
                     transform: [
@@ -39,7 +50,14 @@ export default function RotatingCircle({ segments }) {
                     ]
                 }}
             >
-                <SegmentedCircle rounded={false} radius={160} strokeWidth={10} segments={segments} backgroundColor='#212121'></SegmentedCircle>
+                <SegmentedCircle
+                    rounded={false}
+                    radius={150}
+                    strokeWidth={10}
+                    segments={segments}
+                    showTimes={true}
+                    backgroundColor='#212121'
+                ></SegmentedCircle>
             </Animated.View>
         </View>
     );

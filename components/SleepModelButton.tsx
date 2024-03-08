@@ -9,10 +9,11 @@ export default function SleepModelButton({ name, segments }) {
         <Link href={`/schedules/${name.toLowerCase()}`} style={{marginHorizontal: 8}}>
             <View
                 style={{
-                    width: 111,
-                    height: 'auto',
+                    display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
+                    width: 111,
+                    height: 'auto',
                     backgroundColor: '#121212',
                     borderRadius: 8,
                     padding: 8

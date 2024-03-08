@@ -79,6 +79,7 @@ export default function Page() {
         try {
             const customSchedule = { segments };
             await AsyncStorage.setItem('CUSTOM_SCHEDULE', JSON.stringify(customSchedule));
+            await AsyncStorage.setItem('ACTIVE_SCHEDULE', JSON.stringify(customSchedule));
             console.log('Custom schedule successfully saved.');
         } catch (error) {
             console.error('Error saving custom schedule:', error);

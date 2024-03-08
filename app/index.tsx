@@ -1,11 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CustomText from '../components/CustomText';
 import NotificationService from '../services/NotificationService';
-import RotatingCircle from '../components/RotatingCircle';
+import RotatingCircle from '../components/Clock';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScheduleSegment } from '../interfaces/ScheduleSegment';
+import degreesToTime from '../utils/degreesToTime';
+import degreesToTimeString from '../utils/degreesToTimeString';
 
 export default function Page() {
+    const [segments, setSegments] = useState([] as ScheduleSegment[]);
+
     useEffect(() => {
+        getSegments();
         NotificationService.registerForPushNotificationsAsync().then(() => {
             segments.forEach((segment) => {
                 const notificationTime = calculateNotificationTime(segment.startAngle);
@@ -14,40 +21,36 @@ export default function Page() {
         });
     }, []);
 
-    function gradZuUhrzeit(grad: number): [number, number] {
-        const stunden = Math.floor(grad / 15);
-        const minuten = Math.round((grad % 15) / 0.25);
-
-        return [stunden, minuten];
-    }
-
-    function gradZuUhrzeitString(grad: number): string {
-        const stunden = Math.floor(grad / 15);
-        const minuten = Math.round((grad % 15) * 4);
-
-        const stundenStr = stunden.toString().padStart(2, '0');
-        const minutenStr = minuten.toString().padStart(2, '0');
-
-        return `${stundenStr}:${minutenStr}`;
-    }
-
     function getNextSegment(): string {
         const currentDate = new Date();
-        const currentTimeDegree = currentDate.getHours() * 15 + currentDate.getMinutes() * 0.25;
+        // Calculate the current time in degrees
+        const currentTimeDegree: number = currentDate.getHours() * 15 + currentDate.getMinutes() * 0.25;
 
-        const differences = segments.map((segment) => {
-            return segment.startAngle - currentTimeDegree;
-        });
-        const nonNegativeDifferences = differences.filter((diff) => diff >= 0);
-        const minNonNegativeDifference = Math.min(...nonNegativeDifferences);
-        const indexNextSegment = differences.indexOf(minNonNegativeDifference);
+        // Calculate the difference in degrees between each segment's startAngle and the current time
+        const differences: number[] = segments.map((segment) => segment.startAngle - currentTimeDegree);
 
-        return gradZuUhrzeitString(segments[indexNextSegment].startAngle);
+        const nonNegativeDifferences: number[] = differences.filter((diff) => diff >= 0);
+
+        let minDifference: number;
+        let indexNextSegment: number;
+
+        if (nonNegativeDifferences.length > 0) {
+            // If there are segments later today, find the one with the minimum positive difference
+            minDifference = Math.min(...nonNegativeDifferences);
+            indexNextSegment = differences.indexOf(minDifference);
+        } else {
+            // If all segments are in the past, simulate them being on the next day by adding 360 (a full circle/24 hours in degrees)
+            const positiveDifferences: number[] = differences.map((diff) => diff + 360);
+            minDifference = Math.min(...positiveDifferences);
+            indexNextSegment = positiveDifferences.indexOf(minDifference);
+        }
+
+        return degreesToTimeString(segments[indexNextSegment].startAngle);
     }
 
     function calculateNotificationTime(startAngle: number): Date {
         const currentTime = new Date();
-        const [hours, minutes] = gradZuUhrzeit(startAngle - 30 / 2); // notification 30 minutes before next phase
+        const [hours, minutes] = degreesToTime(startAngle - 30 / 2); // notification 30 minutes before next phase
         const notificationDate = new Date(
             currentTime.getFullYear(),
             currentTime.getMonth(),
@@ -75,39 +78,45 @@ export default function Page() {
         });
     }
 
-    // get infos out of database in the future
-    const segments = [
-        { startAngle: 120, endAngle: 125 },
-        { startAngle: 345, endAngle: 52.5 },
-        { startAngle: 217.5, endAngle: 222.5 }
-    ];
+    const getSegments = async () => {
+        try {
+            const storedSegments = await AsyncStorage.getItem('ACTIVE_SCHEDULE');
+            const parsedSegments = JSON.parse(storedSegments);
+            if (parsedSegments && parsedSegments.segments) {
+                const convertedSegments = parsedSegments.segments.map((segment) => ({
+                    ...segment,
+                    startAngle: parseInt(segment.startAngle, 10),
+                    endAngle: parseInt(segment.endAngle, 10)
+                }));
+                console.log(convertedSegments);
+                setSegments(convertedSegments);
+            }
+        } catch (error) {
+            console.error('Error loading segments from storage ja genau hier:', error);
+        }
+    };
 
     return (
         <View style={{ flex: 1, justifyContent: 'space-around' }}>
-            <Text style={styles.headerText}>Today</Text>
-            <CustomText overlayOpacity={60} style={{ marginLeft: 10, color: 'white' }}>
-                Everyman 2
-            </CustomText>
-            <RotatingCircle segments={segments} />
-            <View style={{ justifyContent: 'center', alignItems: 'center', bottom: 160 }}>
-                <CustomText overlayOpacity={87} style={{ fontSize: 20, color: 'white' }}>
-                    Next Phase at
-                </CustomText>
-                <CustomText overlayOpacity={87} style={{ fontSize: 32, color: 'white' }}>
-                    {getNextSegment()}
-                </CustomText>
-            </View>
-            <View
-                style={{
-                    position: 'absolute',
-                    top: '23.9%',
-                    left: '50%',
-                    width: 2,
-                    height: 40,
-                    backgroundColor: '#fff',
-                    zIndex: 1
-                }}
-            ></View>
+            {segments.length === 0 ? (
+                <Text>No schedule selected</Text>
+            ) : (
+                <>
+                    <Text style={styles.headerText}>Today</Text>
+                    <CustomText overlayOpacity={60} style={{ marginLeft: 10, color: 'white' }}>
+                        Custom
+                    </CustomText>
+                    <RotatingCircle segments={segments} />
+                    <View style={{ justifyContent: 'center', alignItems: 'center', bottom: 160 }}>
+                        <CustomText overlayOpacity={87} style={{ fontSize: 20, color: 'white' }}>
+                            Next Phase at
+                        </CustomText>
+                        <CustomText overlayOpacity={87} style={{ fontSize: 32, color: 'white' }}>
+                            {getNextSegment()}
+                        </CustomText>
+                    </View>
+                </>
+            )}
         </View>
     );
 }
