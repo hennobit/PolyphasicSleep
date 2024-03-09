@@ -1,6 +1,6 @@
 import React from 'react';
-import { View } from 'react-native';
-import Svg, { Circle, Path, G, Line, Text } from 'react-native-svg';
+import { View, Text as NativeText } from 'react-native';
+import Svg, { Circle, Path, G, Text } from 'react-native-svg';
 import degreesToTimeString from '../utils/degreesToTimeString';
 
 interface Segment {
@@ -9,17 +9,8 @@ interface Segment {
     color?: string;
 }
 
-interface SegmentedCircleProps {
-    segments: Segment[];
-    radius?: number;
-    strokeWidth?: number;
-    backgroundColor?: string;
-    rounded?: boolean;
-    showTimes?: boolean;
-}
-
-const calculatePath = (segment: Segment, radius: number, strokeWidth: number, rotation: number = -45) => {
-    const circleCenter = radius + strokeWidth / 2;
+const calculatePath = (segment: Segment, radius: number, strokeWidth: number, rotation: number = -45, padding: number) => {
+    const circleCenter = radius + strokeWidth / 2 + padding;
     const startRadians = ((segment.startAngle + rotation) * Math.PI) / 180;
     const endRadians = ((segment.endAngle + rotation) * Math.PI) / 180;
     const startX = circleCenter + radius * Math.cos(startRadians);
@@ -31,13 +22,35 @@ const calculatePath = (segment: Segment, radius: number, strokeWidth: number, ro
     return `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}`;
 };
 
-const calculateLineEndOutward = (angle: number, radius: number, strokeWidth: number, lineLength: number = 15) => {
-    const circleCenter = radius + strokeWidth / 2;
-    const radians = (angle * Math.PI) / 180;
-    const lineEndX = circleCenter + (radius + lineLength) * Math.cos(radians);
-    const lineEndY = circleCenter + (radius + lineLength) * Math.sin(radians);
-    return { endX: lineEndX, endY: lineEndY };
-};
+const renderTimeText = (
+    angle: number,
+    radius: number,
+    strokeWidth: number,
+    circleCenter: number,
+    rotation: number,
+    color: string
+  ) => {
+    const textRadius = radius + strokeWidth + 10;
+    const textAngleRadians = ((angle + rotation) * Math.PI) / 180;
+    const textX = circleCenter + textRadius * Math.cos(textAngleRadians);
+    const textY = circleCenter + textRadius * Math.sin(textAngleRadians);
+  
+    const isRightSide = angle + rotation <= 90 || angle + rotation >= 270;
+    const textAnchor = isRightSide ? 'start' : 'end';
+  
+    return (
+      <Text
+        x={textX}
+        y={textY}
+        fill={color}
+        fontSize="13"
+        textAnchor={textAnchor}
+        alignmentBaseline="middle"
+      >
+        {degreesToTimeString(angle)}
+      </Text>
+    );
+  };  
 
 export default function SegmentedCircle({
     segments,
@@ -45,10 +58,11 @@ export default function SegmentedCircle({
     strokeWidth = 5,
     backgroundColor = 'transparent',
     rounded = true,
-    showTimes = false
-}: SegmentedCircleProps) {
-    const containerSize = (radius + strokeWidth / 2) * 2;
-    const circleCenter = radius + strokeWidth / 2;
+    showTimes = false,
+    padding = 0
+}) {
+    const containerSize = (radius + strokeWidth / 2) * 2 + padding * 2;
+    const circleCenter = containerSize / 2;
     const rotation = -45;
 
     return (
@@ -58,8 +72,8 @@ export default function SegmentedCircle({
                 height: containerSize
             }}
         >
-            <Svg viewBox={`0 0 ${containerSize} ${containerSize}`}>
-                <G rotation={0} originX={circleCenter} originY={circleCenter}>
+            <Svg>
+                <G rotation={-45} originX={circleCenter} originY={circleCenter}>
                     <Circle
                         cx={circleCenter}
                         cy={circleCenter}
@@ -71,38 +85,18 @@ export default function SegmentedCircle({
                     {segments.map((segment, index) => (
                         <G key={index}>
                             <Path
-                                d={calculatePath(segment, radius, strokeWidth, rotation)}
+                                d={calculatePath(segment, radius, strokeWidth, rotation, padding)}
                                 stroke={segment.color ?? '#7559db'}
                                 strokeWidth={strokeWidth}
                                 fill='transparent'
                                 strokeLinecap={rounded ? 'round' : 'square'}
                             />
-                            {showTimes ? <G rotation={rotation} originX={circleCenter} originY={circleCenter}>
-                                <Text
-                                    key={index + segment.startAngle}
-                                    x={calculateLineEndOutward(segment.startAngle, radius, strokeWidth).endX - 20}
-                                    y={calculateLineEndOutward(segment.startAngle, radius, strokeWidth).endY}
-                                    fill={segment.color ?? '#000'}
-                                    fontSize={15}
-                                    transform={`rotate(${segment.startAngle + 90} ${
-                                        calculateLineEndOutward(segment.startAngle, radius, strokeWidth).endX
-                                    } ${calculateLineEndOutward(segment.startAngle, radius, strokeWidth).endY})`}
-                                >
-                                    {degreesToTimeString(segment.startAngle)}
-                                </Text>
-                                <Text
-                                    key={index + segment.endAngle}
-                                    x={calculateLineEndOutward(segment.endAngle, radius, strokeWidth).endX - 10}
-                                    y={calculateLineEndOutward(segment.endAngle, radius, strokeWidth).endY}
-                                    fill={segment.color ?? '#000'}
-                                    fontSize={15}
-                                    transform={`rotate(${segment.endAngle + 90} ${
-                                        calculateLineEndOutward(segment.endAngle, radius, strokeWidth).endX
-                                    } ${calculateLineEndOutward(segment.endAngle, radius, strokeWidth).endY})`}
-                                >
-                                    {degreesToTimeString(segment.endAngle)}
-                                </Text>
-                            </G> : <></>}
+                            {showTimes && (
+                                <>
+                                    {renderTimeText(segment.startAngle, radius, strokeWidth, circleCenter, rotation, segment.color)}
+                                    {renderTimeText(segment.endAngle, radius, strokeWidth, circleCenter, rotation, segment.color)}
+                                </>
+                            )}
                         </G>
                     ))}
                 </G>

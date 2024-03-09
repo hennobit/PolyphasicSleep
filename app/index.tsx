@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import CustomText from '../components/CustomText';
 import NotificationService from '../services/NotificationService';
-import RotatingCircle from '../components/Clock';
+import Clock from '../components/Clock';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScheduleSegment } from '../interfaces/ScheduleSegment';
 import degreesToTime from '../utils/degreesToTime';
@@ -97,7 +97,7 @@ export default function Page() {
     };
 
     return (
-        <View style={{ flex: 1, justifyContent: 'space-around' }}>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
             {segments.length === 0 ? (
                 <Text>No schedule selected</Text>
             ) : (
@@ -106,7 +106,7 @@ export default function Page() {
                     <CustomText overlayOpacity={60} style={{ marginLeft: 10, color: 'white' }}>
                         Custom
                     </CustomText>
-                    <RotatingCircle segments={segments} />
+                    <Clock segments={segments} />
                     <View style={{ justifyContent: 'center', alignItems: 'center', bottom: 160 }}>
                         <CustomText overlayOpacity={87} style={{ fontSize: 20, color: 'white' }}>
                             Next Phase at

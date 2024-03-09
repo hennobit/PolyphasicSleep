@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Animated, Easing, Text, View } from 'react-native';
 import SegmentedCircle from './SegmentedCircle';
 
-export default function RotatingCircle({ segments }) {
+export default function Clock({ segments }) {
     const [rotation] = useState(new Animated.Value(0));
 
     useEffect(() => {
@@ -57,6 +57,7 @@ export default function RotatingCircle({ segments }) {
                     segments={segments}
                     showTimes={true}
                     backgroundColor='#212121'
+                    padding={99}
                 ></SegmentedCircle>
             </Animated.View>
         </View>
