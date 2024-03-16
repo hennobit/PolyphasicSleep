@@ -27,10 +27,9 @@ const renderTimeText = (
     radius: number,
     strokeWidth: number,
     circleCenter: number,
-    rotation: number,
     color: string
   ) => {
-    rotation = -45;
+    const rotation = -45;
     const textRadius = radius + strokeWidth + 10;
     const textAngleRadians = ((angle + rotation) * Math.PI) / 180;
     const textX = circleCenter + textRadius * Math.cos(textAngleRadians);
@@ -98,8 +97,8 @@ export default function SegmentedCircle({
                             />
                             {showTimes && (
                                 <>
-                                    {renderTimeText(segment.startAngle, radius, strokeWidth, circleCenter, rotation, segment.color)}
-                                    {renderTimeText(segment.endAngle, radius, strokeWidth, circleCenter, rotation, segment.color)}
+                                    {renderTimeText(segment.startAngle, radius, strokeWidth, circleCenter, segment.color)}
+                                    {renderTimeText(segment.endAngle, radius, strokeWidth, circleCenter, segment.color)}
                                 </>
                             )}
                         </G>
