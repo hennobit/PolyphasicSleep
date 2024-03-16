@@ -20,7 +20,7 @@ export default function Page() {
         setSegments([...newSegments, { startAngle: 0, endAngle: 0, color: 'red' }]);
     };
 
-    const updateSegment = (index, field, value) => {
+    const updateSegment = (index: number, field: string, value: string) => {
         const updatedSegments = [...segments];
         updatedSegments[index][field] = value;
         setSegments(updatedSegments);
@@ -68,14 +68,14 @@ export default function Page() {
 
     const saveSchedule = async () => {
         try {
-            await saveCustomSchedule(segments);
+            await saveCustomSchedule();
             router.push('/schedules');
         } catch (error) {
             console.error('Error saving schedule:', error);
         }
     };
 
-    const saveCustomSchedule = async (segments) => {
+    const saveCustomSchedule = async () => {
         try {
             const customSchedule = { segments };
             await AsyncStorage.setItem('CUSTOM_SCHEDULE', JSON.stringify(customSchedule));
@@ -97,7 +97,7 @@ export default function Page() {
                                 style={styles.input}
                                 placeholder='Name'
                                 placeholderTextColor={'#a9a9a9'}
-                                onChangeText={(text) => updateSegment(index, 'name', text)}
+                                onChangeText={(text) => updateSegment(index, 'title', text)}
                             />
                             <TextInput
                                 style={styles.input}

@@ -30,12 +30,15 @@ const renderTimeText = (
     rotation: number,
     color: string
   ) => {
+    rotation = -45;
     const textRadius = radius + strokeWidth + 10;
     const textAngleRadians = ((angle + rotation) * Math.PI) / 180;
     const textX = circleCenter + textRadius * Math.cos(textAngleRadians);
     const textY = circleCenter + textRadius * Math.sin(textAngleRadians);
-  
     const isRightSide = angle + rotation <= 90 || angle + rotation >= 270;
+    const rotationAngle = isRightSide ? angle + rotation : angle + rotation + 180; // Adjust rotation angle based on text position
+    const textTransform = `rotate(${rotationAngle}, ${textX}, ${textY})`; // Construct rotate transformation
+  
     const textAnchor = isRightSide ? 'start' : 'end';
   
     return (
@@ -46,11 +49,13 @@ const renderTimeText = (
         fontSize="13"
         textAnchor={textAnchor}
         alignmentBaseline="middle"
+        transform={textTransform}
       >
         {degreesToTimeString(angle)}
       </Text>
     );
   };  
+   
 
 export default function SegmentedCircle({
     segments,
@@ -73,7 +78,7 @@ export default function SegmentedCircle({
             }}
         >
             <Svg>
-                <G rotation={-45} originX={circleCenter} originY={circleCenter}>
+                <G rotation={rotation} originX={circleCenter} originY={circleCenter}>
                     <Circle
                         cx={circleCenter}
                         cy={circleCenter}
