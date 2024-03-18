@@ -1,10 +1,11 @@
 // RotatingCircle.js
 import React, { useEffect, useState } from 'react';
-import { Animated, Easing, Text, View } from 'react-native';
+import { Animated, Easing, View, TouchableWithoutFeedback } from 'react-native';
 import SegmentedCircle from './SegmentedCircle';
 
 export default function Clock({ segments }) {
     const [rotation] = useState(new Animated.Value(0));
+    const [showTimes, setShowTimes] = useState(false);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -50,15 +51,19 @@ export default function Clock({ segments }) {
                     ]
                 }}
             >
-                <SegmentedCircle
-                    rounded={false}
-                    radius={150}
-                    strokeWidth={10}
-                    segments={segments}
-                    showTimes={true}
-                    backgroundColor='#212121'
-                    padding={99}
-                ></SegmentedCircle>
+                <TouchableWithoutFeedback onPressIn={() => setShowTimes(true)} onPressOut={() => setShowTimes(false)}>
+                    <View>
+                    <SegmentedCircle
+                        rounded={false}
+                        radius={150}
+                        strokeWidth={10}
+                        segments={segments}
+                        showTimes={showTimes}
+                        backgroundColor='#212121'
+                        padding={99}
+                    ></SegmentedCircle>
+                    </View>
+                </TouchableWithoutFeedback>
             </Animated.View>
         </View>
     );
