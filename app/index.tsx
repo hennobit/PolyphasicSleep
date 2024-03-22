@@ -4,12 +4,12 @@ import CustomText from '../components/CustomText';
 import NotificationService from '../services/NotificationService';
 import Clock from '../components/Clock';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ScheduleSegment } from '../interfaces/ScheduleSegment';
+import { Segment } from '../interfaces/Segment';
 import degreesToTime from '../utils/degreesToTime';
 import degreesToTimeString from '../utils/degreesToTimeString';
 
 export default function Page() {
-    const [segments, setSegments] = useState([] as ScheduleSegment[]);
+    const [segments, setSegments] = useState([] as Segment[]);
 
     useEffect(() => {
         getSegments();

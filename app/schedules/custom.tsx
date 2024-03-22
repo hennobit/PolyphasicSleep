@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, TextInput, StyleSheet, ScrollView, Modal, Alert } from 'react-native';
 import WheelColorPicker from 'react-native-wheel-color-picker';
 import CustomButton from '../../components/CustomButton';
-import { ScheduleSegment } from '../../interfaces/ScheduleSegment';
+import { Segment } from '../../interfaces/Segment';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Page() {
-    const [segments, setSegments] = useState([] as ScheduleSegment[]);
+    const [segments, setSegments] = useState([] as Segment[]);
     const [colorPickerIndex, setColorPickerIndex] = useState(null);
     const [colorPickerVisible, setColorPickerVisible] = useState(false);
     const [selectedColor, setSelectedColor] = useState('red');

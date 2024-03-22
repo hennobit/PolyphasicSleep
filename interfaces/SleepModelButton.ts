@@ -1,6 +1,6 @@
-import { ScheduleSegment } from "./ScheduleSegment";
+import { Segment } from "./Segment";
 
 export interface SleepModelButton {
     name: string;
-    segments: ScheduleSegment[];
+    segments: Segment[];
 }

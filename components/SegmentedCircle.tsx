@@ -1,15 +1,16 @@
 import React from 'react';
-import { View, Text as NativeText } from 'react-native';
-import Svg, { Circle, Path, G, Text } from 'react-native-svg';
+import { View } from 'react-native';
+import Svg, { Circle, Path, G, Text, Rect } from 'react-native-svg';
 import degreesToTimeString from '../utils/degreesToTimeString';
+import { Segment } from '../interfaces/Segment';
 
-interface Segment {
-    startAngle: number;
-    endAngle: number;
-    color?: string;
-}
-
-const calculatePath = (segment: Segment, radius: number, strokeWidth: number, rotation: number = -45, padding: number) => {
+const calculatePath = (
+    segment: Segment,
+    radius: number,
+    strokeWidth: number,
+    rotation: number = -45,
+    padding: number
+) => {
     const circleCenter = radius + strokeWidth / 2 + padding;
     const startRadians = ((segment.startAngle + rotation) * Math.PI) / 180;
     const endRadians = ((segment.endAngle + rotation) * Math.PI) / 180;
@@ -22,13 +23,7 @@ const calculatePath = (segment: Segment, radius: number, strokeWidth: number, ro
     return `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}`;
 };
 
-const renderTimeText = (
-    angle: number,
-    radius: number,
-    strokeWidth: number,
-    circleCenter: number,
-    color: string
-  ) => {
+const renderTimeText = (angle: number, radius: number, strokeWidth: number, circleCenter: number, color: string) => {
     const rotation = -45;
     const textRadius = radius + strokeWidth + 10;
     const textAngleRadians = ((angle + rotation) * Math.PI) / 180;
@@ -37,24 +32,51 @@ const renderTimeText = (
     const isRightSide = angle + rotation <= 90 || angle + rotation >= 270;
     const rotationAngle = isRightSide ? angle + rotation : angle + rotation + 180; // Adjust rotation angle based on text position
     const textTransform = `rotate(${rotationAngle}, ${textX}, ${textY})`; // Construct rotate transformation
-  
+
     const textAnchor = isRightSide ? 'start' : 'end';
-  
+
     return (
-      <Text
-        x={textX}
-        y={textY}
-        fill={color}
-        fontSize="13"
-        textAnchor={textAnchor}
-        alignmentBaseline="middle"
-        transform={textTransform}
-      >
-        {degreesToTimeString(angle)}
-      </Text>
+        <Text
+            x={textX}
+            y={textY}
+            fill={color}
+            fontSize='13'
+            textAnchor={textAnchor}
+            alignmentBaseline='middle'
+            transform={textTransform}
+        >
+            {degreesToTimeString(angle)}
+        </Text>
     );
-  };  
-   
+};
+
+const renderLegend = (segment: Segment, index: number, total: number, circleCenter: number) => {
+    const squareSize = 15;
+    const fontSize = 15;
+    const xOffset = circleCenter - 15;
+    const yOffset = circleCenter + (index - total / 2) * total * 10;
+    return (
+        <G key={`legend_${index}`}>
+            <Rect
+                x={xOffset - squareSize / 2}
+                y={yOffset - squareSize / 2}
+                width={squareSize}
+                height={squareSize}
+                fill={segment.color}
+            />
+            <Text
+                x={xOffset + squareSize / 2 + 5}
+                y={yOffset}
+                fill='#fff'
+                fontSize={fontSize}
+                textAnchor='start'
+                alignmentBaseline='middle'
+            >
+                {segment.title}
+            </Text>
+        </G>
+    );
+};
 
 export default function SegmentedCircle({
     segments,
@@ -97,8 +119,15 @@ export default function SegmentedCircle({
                             />
                             {showTimes && (
                                 <>
-                                    {renderTimeText(segment.startAngle, radius, strokeWidth, circleCenter, segment.color)}
+                                    {renderTimeText(
+                                        segment.startAngle,
+                                        radius,
+                                        strokeWidth,
+                                        circleCenter,
+                                        segment.color
+                                    )}
                                     {renderTimeText(segment.endAngle, radius, strokeWidth, circleCenter, segment.color)}
+                                    {renderLegend(segment, index, segments.length, circleCenter)}
                                 </>
                             )}
                         </G>

@@ -1,4 +1,4 @@
-export interface ScheduleSegment {
+export interface Segment {
     title?: string;
     startAngle: number;
     endAngle: number;

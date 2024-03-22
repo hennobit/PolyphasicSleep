@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SleepModelButton } from '../interfaces/SleepModelButton';
-import { ScheduleSegment } from '../interfaces/ScheduleSegment';
+import { Segment } from '../interfaces/Segment';
 
 const sleepModelButtons: SleepModelButton[] = [
     {
